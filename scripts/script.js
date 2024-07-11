@@ -1,12 +1,4 @@
-const todoList = JSON.parse(localStorage.getItem('todoList')) || [{
-  id: '1',
-  name: 'Play soccer',
-  isCompleted: false,
-}, {
-  id: '2',
-  name: 'Go to the GYM',
-  isCompleted: false,
-}];
+const todoList = JSON.parse(localStorage.getItem('todoList')) || [];
 const todoInput = document.querySelector('.todo-input');
 const todoAdd = document.querySelector('.todo-add');
 const todoClear = document.querySelector('.todo-clear');
@@ -20,19 +12,18 @@ renderTodoList();
 setActiveFilter();
 
 function renderTodoList() {
-  let todoListHTML = '';
-
   const filteredList = todoList.filter(task => {
-    if (currentFilter === 'working') {
-      return !task.isCompleted;
-    } else if (currentFilter === 'done') {
-      return task.isCompleted;
-    }
+    if (currentFilter === 'working') return !task.isCompleted;
+    if (currentFilter === 'done') return task.isCompleted;
     return true;
   });
-  
-  filteredList.forEach((task) => {
-    const html = `
+
+  let todoListHTML = '';
+
+  if (filteredList.length === 0) {
+    todoListHTML = '<p class="todo-empty">No tasks found.</p>';
+  } else {
+    todoListHTML = filteredList.map(task => `
       <li class="todo-task">
         <label for="${task.id}" class="todo-task-container">
           <input type="checkbox" id="${task.id}" ${task.isCompleted ? 'checked' : ''}>
@@ -45,31 +36,22 @@ function renderTodoList() {
           </div>
         </label>
       </li>
-    `;
-
-    todoListHTML += html;
-  });
+    `).join('');
+  }
 
   document.querySelector('.todo-list').innerHTML = todoListHTML;
 
-  document.querySelectorAll('.todo-task-edit')
-    .forEach((editButton, index) => {
-      editButton.addEventListener('click', () => {
-        editTask(filteredList[index].id);
-      });
-    })
+  document.querySelectorAll('.todo-task-edit').forEach((editButton, index) => {
+    editButton.addEventListener('click', () => editTask(filteredList[index].id));
+  });
 
-  document.querySelectorAll('.todo-task-delete')
-    .forEach((deleteButton, index) => {
-      deleteButton.addEventListener('click', () => {
-        deleteTask(filteredList[index].id);
-      });
-    });
+  document.querySelectorAll('.todo-task-delete').forEach((deleteButton, index) => {
+    deleteButton.addEventListener('click', () => deleteTask(filteredList[index].id));
+  });
 
-  document.querySelectorAll('.todo-task input[type="checkbox"]')
-    .forEach((checkbox) => {
-      checkbox.addEventListener('change', handleCheckboxChange);
-    });
+  document.querySelectorAll('.todo-task input[type="checkbox"]').forEach(checkbox => {
+    checkbox.addEventListener('change', handleCheckboxChange);
+  });
 }
 
 todoAdd.addEventListener('click', () => {
@@ -81,11 +63,13 @@ todoAdd.addEventListener('click', () => {
   }
 });
 
-
 todoClear.addEventListener('click', clearTasks);
 
 todoFilters.addEventListener('click', (event) => {
   if (event.target.tagName === 'SPAN') {
+    if (editTaskId !== null && isEditing) {
+      cancelEdit();
+    }
     currentFilter = event.target.id;
     renderTodoList();
     setActiveFilter();
@@ -94,24 +78,14 @@ todoFilters.addEventListener('click', (event) => {
 
 function addTask() {
   const taskName = todoInput.value.trim();
-
   if (taskName === '') {
     alert('Input cannot be empty!');
     return;
   }
 
-  const newId = (todoList.length > 0 
-    ? Math.max(...todoList.map(task => parseInt(task.id))) + 1 
-    : 1).toString();
-
-  todoList.push({
-    id: newId,
-    name: todoInput.value,
-    isCompleted: false,
-  });
-
+  const newId = (todoList.length > 0 ? Math.max(...todoList.map(task => parseInt(task.id))) + 1 : 1).toString();
+  todoList.push({ id: newId, name: taskName, isCompleted: false });
   todoInput.value = '';
-
   renderTodoList();
   saveToStorage();
 }
@@ -129,19 +103,15 @@ function editTask(taskId) {
   const editButton = document.querySelector(`label[for="${taskId}"] .todo-task-edit`);
 
   if (editTaskId === taskId) {
-    // Cancel editing if already editing the same task
     editTaskId = null;
     isEditing = false;
     todoInput.value = '';
     editButton.textContent = 'Edit';
   } else {
-    // Start editing a new task
     if (editTaskId !== null) {
-      // Reset the previous edit button text
       const previousEditButton = document.querySelector(`label[for="${editTaskId}"] .todo-task-edit`);
       previousEditButton.textContent = 'Edit';
     }
-
     todoInput.value = task.name;
     editTaskId = taskId;
     isEditing = true;
@@ -150,10 +120,13 @@ function editTask(taskId) {
   }
 }
 
-
 function saveEditedTask() {
   const task = todoList.find(task => task.id === editTaskId);
-  task.name = todoInput.value;
+  task.name = todoInput.value.trim();
+  if (task.name === '') {
+    alert('Task name cannot be empty!');
+    return;
+  }
 
   const editButton = document.querySelector(`label[for="${editTaskId}"] .todo-task-edit`);
   editButton.textContent = 'Edit';
@@ -165,23 +138,16 @@ function saveEditedTask() {
   saveToStorage();
 }
 
-
 function deleteTask(taskId) {
   const taskIndex = todoList.findIndex(task => task.id === taskId);
   todoList.splice(taskIndex, 1);
-
   renderTodoList();
   saveToStorage();
 }
 
 function handleCheckboxChange(event) {
   if (editTaskId !== null) {
-    const editButton = document.querySelector(`label[for="${editTaskId}"] .todo-task-edit`);
-    editButton.textContent = 'Edit';
-
-    editTaskId = null;
-    isEditing = false;
-    todoInput.value = '';
+    cancelEdit();
   }
 
   const taskId = event.target.id;
@@ -189,22 +155,21 @@ function handleCheckboxChange(event) {
   task.isCompleted = event.target.checked;
 
   const taskNameElement = document.querySelector(`label[for="${taskId}"] .todo-task-name`);
-  if (task.isCompleted) {
-    taskNameElement.classList.add('completed');
-  } else {
-    taskNameElement.classList.remove('completed');
-  }
+  taskNameElement.classList.toggle('completed', task.isCompleted);
 
   saveToStorage();
 }
 
+function cancelEdit() {
+  const editButton = document.querySelector(`label[for="${editTaskId}"] .todo-task-edit`);
+  editButton.textContent = 'Edit';
+  editTaskId = null;
+  isEditing = false;
+  todoInput.value = '';
+}
 
 function setActiveFilter() {
-  document.querySelectorAll('.todo-filters span')
-    .forEach(span => {
-      span.classList.remove('active');
-    });
-  
+  document.querySelectorAll('.todo-filters span').forEach(span => span.classList.remove('active'));
   document.getElementById(currentFilter).classList.add('active');
 }
 

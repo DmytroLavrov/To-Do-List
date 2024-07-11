@@ -1,0 +1,130 @@
+*{padding: 0;margin: 0;border: 0;}
+*,*:before,*:after{-webkit-box-sizing: border-box;box-sizing: border-box;}
+:focus,:active{outline: none;}
+a:focus,a:active{outline: none;}
+nav,footer,header,aside{display: block;}
+html,body{height:100%;width:100%;font-size:100%;line-height:1;font-size:14px;-ms-text-size-adjust:100%;-moz-text-size-adjust:100%;-webkit-text-size-adjust:100%;}
+input,button,textarea{font-family:inherit;}
+input::-ms-clear{display: none;}
+button{cursor: pointer;}
+button::-moz-focus-inner{padding:0;border:0;}
+a,a:visited{text-decoration: none;}
+a:hover{text-decoration: none;}
+ul li{list-style: none;}
+img{vertical-align: top;}
+h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight: inherit;}
+
+body {
+  font-family: "Poppins", sans-serif;
+  font-size: 16px;
+}
+
+.todo-btn {
+  background-color: #3c87ff;
+  border-radius: 5px;
+  color: white;
+  padding: 5px 10px;
+  font-size: 16px;
+}
+
+.wrapper {
+  min-height: 100%;
+  overflow: clip;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 25px;
+}
+.todo-app {
+  border: 2px solid black;
+  width: 100%;
+  max-width: 540px;
+  border-radius: 15px;
+  padding: 30px;
+  /* height: 500px; */
+}
+.todo-title {
+  margin-bottom: 20px;
+}
+.todo-title h1{
+  font-size: 24px;
+  font-weight: bold;
+}
+.todo-input-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.todo-input {
+  /* border: 1px solid black; */
+  border-bottom: 2px solid #c9cecd;
+  width: 100%;
+  max-width: 300px;
+}
+.todo-input {
+  font-size: 16px;
+}
+.todo-add {
+
+}
+.todo-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.todo-filters {
+  display: flex;
+  gap: 20px;
+}
+.todo-filters span {
+  cursor: pointer;
+}
+.todo-filters span.active {
+  color: #3c87ff;
+}
+.todo-clear {
+  padding: 5px 10px;
+}
+.todo-list {
+  /* max-height: 300px; */
+  /* overflow-y: auto; */
+  padding-right: 5px;
+  display: grid;
+  gap: 10px;
+  box-sizing: border-box; /* Врахування смуги прокручування */
+}
+
+
+
+.todo-task {
+
+}
+.todo-task-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.todo-task-name {
+  flex-grow: 1;
+  /* max-width: 200px; */
+  /* overflow-x: auto;
+  overflow-y: hidden;
+  white-space: normal; */
+  word-break: break-all;
+}
+.completed {
+  text-decoration: line-through;
+}
+
+.todo-task-buttons {
+  display: flex;
+  gap: 10px;
+}
+.todo-task-edit {
+  padding: 5px 10px;
+}
+.todo-task-delete {
+  padding: 5px 10px;
+}
